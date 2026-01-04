@@ -5,6 +5,7 @@ from context import Context
 from wifi import Wifi
 from habit_calendar import HabitCalendar
 from brightness import Brightness
+from date_time import DateTime
 
 
 class Controller:
@@ -13,6 +14,7 @@ class Controller:
         self.page_idx = 0
         self.page = [
             HabitCalendar(self.context),
+            DateTime(self.context),
             Brightness(self.context),
         ]
         
