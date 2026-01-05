@@ -48,9 +48,9 @@ class HabitCalendar:
         _, month, day, _, _, _, _, _ = self.context.datetime()
         return month, day
     
-    def update_matrix(self, day, month):
-        px = day * (self.cell_width + self.cell_gap)
-        py = month * (self.cell_height+ self.cell_gap)
+    def update_matrix(self, x, y):
+        px = x * (self.cell_width + self.cell_gap)
+        py = y * (self.cell_height+ self.cell_gap)
         self.context.graphics.rectangle(px, py, self.cell_width, self.cell_height)
 
     def display_date_matrix(self):

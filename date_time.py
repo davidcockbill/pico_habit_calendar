@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import time
-from time_display import write_time
 
-MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+MONTHS = ['January','Febuary','March','April','May','June','July','August','September','October','November','December']
 
 
 class DateTime:
@@ -30,11 +29,12 @@ class DateTime:
             self.update_display()
 
     def display_date(self):
+        scale = 6
         month, day = self.current_date()
-        date = f'{MONTHS[month-1]} {day:02}'
+        date = f'{MONTHS[month-1]} {day}'
 
         self.context.set_pen(self.context.orange())
-        self.context.graphics.text(date, 3, 2, scale=1, spacing=1)
+        self.context.graphics.text(date, self.context.centre_text(date, scale=scale), 2, scale=scale, spacing=1)
 
     def display_time(self):
         year = time.localtime()[0]
@@ -49,7 +49,11 @@ class DateTime:
             localtime = time.localtime(now)
         hour = localtime[3]
         minute = localtime[4]
-        write_time(self.context.graphics, self.context.light_green(), self.background(), hour, minute, 7, 11)
+        self.context.set_pen(self.context.green())
+        text = f'{hour:02d}:{minute:02d}'
+        scale=5
+        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 120, scale=scale, spacing=1)
+
         self.last_refresh_minute = minute
 
     def current_date(self):

@@ -13,8 +13,8 @@ class Controller:
         self.context = Context()
         self.page_idx = 0
         self.page = [
-            HabitCalendar(self.context),
             DateTime(self.context),
+            HabitCalendar(self.context),
             Brightness(self.context),
         ]
         

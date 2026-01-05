@@ -67,6 +67,11 @@ class Context:
         self.set_pen(self.black() if background is None else background)
         self.graphics.clear()
 
+    def centre_text(self, text, scale=4):
+        screen_width, _ = self.graphics.get_bounds()
+        text_width = self.graphics.measure_text(text, scale)
+        return int(max((screen_width - text_width)/2, 0))
+
     def set_pen(self, pen):
         self.graphics.set_pen(pen)
 
