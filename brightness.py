@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from button_handler import Button
+
 
 class Brightness:
     def __init__(self, context):
@@ -21,8 +23,11 @@ class Brightness:
         self.context.graphics.text(f'{self.context.get_brightness()}%', 100, 150, scale=5, spacing=1)
         self.context.update_display()
 
-    def button_pressed(self):
-        print(f'Increment brightness')
-        self.context.increment_brightness()
+    def button_pressed(self, button, press):
+        if button is Button.X:
+            print(f'Increment brightness')
+            self.context.increment_brightness()
+        elif button is Button.Y:
+            print(f'Decrement brightness')
+            self.context.decrement_brightness()
         self.refresh_display()
-

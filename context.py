@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import time
-from machine import RTC, Pin
+from machine import RTC
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2
 
 
@@ -9,11 +9,6 @@ class Context:
     def __init__(self):
         self.graphics = PicoGraphics(display=DISPLAY_PICO_DISPLAY_2)
         self.rtc = RTC()
-
-        self.button_a = Pin(12, Pin.IN, Pin.PULL_UP)
-        self.button_b = Pin(13, Pin.IN, Pin.PULL_UP)
-        self.button_x = Pin(14, Pin.IN, Pin.PULL_UP)
-        self.button_y = Pin(15, Pin.IN, Pin.PULL_UP)
 
         self.pens = {
             'white': self.graphics.create_pen(255, 255, 255),
@@ -30,32 +25,25 @@ class Context:
         }
 
         self.graphics.set_font('bitmap8')
-        self.store_brightness(80)
 
     def datetime(self):
         return self.rtc.datetime()
-    
-    def process_button(self):
-        initial_timestamp = time.ticks_ms()
-        if self.button_a.value() == 0:
-            while self.button_a.value() == 0:
-                time.sleep(0.01)
-        duration = time.ticks_ms() - initial_timestamp
-        return duration
 
     def update_display(self):
         self.graphics.update()
 
     def set_brightness(self, brightness):
-        self.graphics.set_backlight(brightness / 100)
-
-    def store_brightness(self, brightness):
+        print(f'Setting brightness to {brightness}')
         self.brightness = brightness
-        self.brightness = self.brightness if (self.brightness < 100) else 0
-        self.set_brightness(self.brightness)
+        self.graphics.set_backlight(self.brightness / 100)
 
     def increment_brightness(self):
-        self.store_brightness(self.brightness + 10)
+        if (self.brightness < 100):
+            self.set_brightness(self.brightness + 10)
+ 
+    def decrement_brightness(self):
+        if (self.brightness > 20):
+            self.set_brightness(self.brightness - 10)
 
     def restore_brightness(self):
         self.set_brightness(self.brightness)
@@ -107,3 +95,4 @@ class Context:
     
     def light_grey(self):
         return self.pens.get('light_grey')
+

@@ -5,7 +5,7 @@ from context import Context
 from wifi import Wifi
 from habit_calendar import HabitCalendar
 from brightness import Brightness
-from date_time import DateTime
+from button_handler import ButtonHandler, ButtonPress, Button
 
 
 class Controller:
@@ -13,27 +13,27 @@ class Controller:
         self.context = Context()
         self.page_idx = 0
         self.page = [
-            DateTime(self.context),
             HabitCalendar(self.context),
             Brightness(self.context),
         ]
+        self.button_handler = ButtonHandler()
+
         
     def run(self):
         Wifi(self.context).sync_time()
+        self.context.set_brightness(70)
         self._current_page().enter()
         while True:
             self._loop()
-            time.sleep(0.01)
+            time.sleep(0.001)
 
     def _loop(self):
-        duration = self.context.process_button()
-        if duration > 100:
-            if duration < 1000:
-                self._current_page().button_pressed()
-            else:
-                print(f'Long push {duration}')
+        button, press = self.button_handler.process_buttons()
+        if press is not ButtonPress.NONE:
+            if button is Button.A:
                 self._increment_page()
-
+            else:
+                self._current_page().button_pressed(button, press)
         self._current_page().refresh_display()
 
     def _current_page(self):

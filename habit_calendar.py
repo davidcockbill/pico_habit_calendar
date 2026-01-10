@@ -2,6 +2,9 @@
 
 from date_matrix import DateMatrix
 import time
+from button_handler import Button
+
+MONTHS = ['January','Febuary','March','April','May','June','July','August','September','October','November','December']
 
 
 class HabitCalendar:
@@ -16,6 +19,7 @@ class HabitCalendar:
         self.context = context
         self.date_matrix = DateMatrix()
         self.last_refresh_minute = int(0)
+        self.year_view = False
 
         self.restore_matrix()
 
@@ -26,11 +30,20 @@ class HabitCalendar:
 
     def update_display(self):
         self.context.clear_display(self.background())
-        self.display_date_matrix()
+        if self.year_view:
+            self.display_year()
+        else:
+            self.display_date()
+            self.display_time()
+            self.display_month()
         self.context.update_display()
 
-    def button_pressed(self):
-        self.toggle_day()
+    def button_pressed(self, button, press):
+        if button is Button.X:
+            self.toggle_day()
+        elif button is Button.Y:
+            self.year_view = False if self.year_view else True
+        self.update_display()
 
     def restore_matrix(self):
         print(f'Restoring Matrix...')
@@ -42,7 +55,6 @@ class HabitCalendar:
         print(f'Setting month={month}, day={day}')
         self.date_matrix.toggle(month-1, day-1)
         self.date_matrix.store()
-        self.display_date_matrix()
 
     def current_date(self):
         _, month, day, _, _, _, _, _ = self.context.datetime()
@@ -53,7 +65,7 @@ class HabitCalendar:
         py = y * (self.cell_height+ self.cell_gap)
         self.context.graphics.rectangle(px, py, self.cell_width, self.cell_height)
 
-    def display_date_matrix(self):
+    def display_year(self):
         current_month, current_day = self.current_date()
 
         for month in DateMatrix.month_range():
@@ -65,7 +77,19 @@ class HabitCalendar:
                     pen = self.today_on() if today else self.on()
                 self.context.set_pen(pen)
                 self.update_matrix(day, month)
-        self.context.update_display()
+
+    def display_month(self):
+        current_month, current_day = self.current_date()
+
+        month = current_month-1
+        for day in DateMatrix.day_range(current_month):
+            today = day == current_day-1
+            pen = self.today_off() if today else self.off()
+            if (self.date_matrix.isSet(month, day)):
+                print(f'day={day} is set')
+                pen = self.today_on() if today else self.on()
+            self.context.set_pen(pen)
+            self.update_matrix(day, 10)
 
     def refresh_display(self):
         _, _, _, _, _, current_minute, _, _ = self.context.datetime()
@@ -73,7 +97,7 @@ class HabitCalendar:
             self.update_display()
 
     def on(self):
-        return self.context.dark_green()
+        return self.context.blue()
         
     def off(self):
         return self.context.black()
@@ -89,3 +113,31 @@ class HabitCalendar:
 
     def background(self):
         return self.context.dark_background_blue()
+    
+    def display_date(self):
+        scale = 6
+        month, day = self.current_date()
+        date = f'{MONTHS[month-1]} {day}'
+
+        self.context.set_pen(self.context.orange())
+        self.context.graphics.text(date, self.context.centre_text(date, scale=scale), 2, scale=scale, spacing=1)
+
+    def display_time(self):
+        year = time.localtime()[0]
+        mar_change = time.mktime((year,3 ,(31-(int(5*year/4+4))%7),1,0,0,0,0,0))
+        oct_change = time.mktime((year,10,(31-(int(5*year/4+1))%7),1,0,0,0,0,0))
+        now = time.time()
+        if now < mar_change:
+            localtime = time.localtime(now)
+        elif now < oct_change:  
+            localtime = time.localtime(now+3600)
+        else:
+            localtime = time.localtime(now)
+        hour = localtime[3]
+        minute = localtime[4]
+        self.context.set_pen(self.context.green())
+        text = f'{hour:02d}:{minute:02d}'
+        scale=5
+        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
+
+        self.last_refresh_minute = minute
