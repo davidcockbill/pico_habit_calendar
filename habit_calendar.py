@@ -35,6 +35,7 @@ class HabitCalendar:
         else:
             self.display_date()
             self.display_time()
+            self.display_percentage()
             self.display_month()
         self.context.update_display()
 
@@ -64,6 +65,28 @@ class HabitCalendar:
         px = x * (self.cell_width + self.cell_gap)
         py = y * (self.cell_height+ self.cell_gap)
         self.context.graphics.rectangle(px, py, self.cell_width, self.cell_height)
+
+    def display_percentage(self):
+        current_month, current_day = self.current_date()
+
+        total_days = 0
+        set_days = 0
+        today = False
+        for month in DateMatrix.month_range():
+            for day in DateMatrix.day_range(month):
+                total_days += 1
+                if (self.date_matrix.isSet(month, day)):
+                    set_days += 1
+                today = day == current_day-1 and month == current_month-1
+                if today:
+                    break
+            if today:
+                break
+        percentage = int(set_days/total_days * 100)
+        text = f'{percentage:02d}%'
+        scale=3
+        self.context.set_pen(self.context.green())
+        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 140, scale=scale, spacing=1)
 
     def display_year(self):
         current_month, current_day = self.current_date()
