@@ -19,7 +19,11 @@ class HabitCalendar:
         self.context = context
         self.date_matrix = DateMatrix()
         self.last_refresh_minute = int(0)
-        self.year_view = False
+        self.view = [
+            self.display_summary_view,
+            self.display_year_view,
+        ]
+        self.view_idx = 0
 
         self.restore_matrix()
 
@@ -28,22 +32,22 @@ class HabitCalendar:
         self.context.restore_brightness()
         self.update_display()
 
+    def display_summary_view(self):
+        self.display_date()
+        self.display_time()
+        self.display_percentage()
+        self.display_month()
+
     def update_display(self):
         self.context.clear_display(self.background())
-        if self.year_view:
-            self.display_year()
-        else:
-            self.display_date()
-            self.display_time()
-            self.display_percentage()
-            self.display_month()
+        self.view[self.view_idx]()
         self.context.update_display()
 
     def button_pressed(self, button, press):
         if button is Button.X:
             self.toggle_day()
         elif button is Button.Y:
-            self.year_view = False if self.year_view else True
+            self.view_idx = (self.view_idx + 1) % len(self.view)
         self.update_display()
 
     def restore_matrix(self):
@@ -88,7 +92,7 @@ class HabitCalendar:
         self.context.set_pen(self.context.green())
         self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 140, scale=scale, spacing=1)
 
-    def display_year(self):
+    def display_year_view(self):
         current_month, current_day = self.current_date()
 
         for month in DateMatrix.month_range():
