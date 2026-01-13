@@ -45,6 +45,10 @@ class DateMatrix:
     def isSet(self, month, day):
         return (self.date_matrix[str(month)] >> day & 1) != 0
     
+    def reset(self):
+        self.date_matrix = DateMatrix._blank_matrix()
+        self.store()
+    
     @staticmethod
     def month_range():
         return range(MAX_MONTH)

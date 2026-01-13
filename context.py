@@ -3,6 +3,7 @@
 import time
 from machine import RTC
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2
+from pimoroni import RGBLED
 
 
 class Context:
@@ -25,6 +26,20 @@ class Context:
         }
 
         self.graphics.set_font('bitmap8')
+        self.led = RGBLED(6, 7, 8)
+        self.led_white()
+
+    def led_red(self):
+        self.led.set_rgb(4, 0, 0)
+
+    def led_green(self):
+        self.led.set_rgb(0, 4, 0)
+
+    def led_blue(self):
+        self.led.set_rgb(0, 0, 4)
+
+    def led_white(self):
+        self.led.set_rgb(4, 4, 4)
 
     def datetime(self):
         return self.rtc.datetime()
@@ -96,3 +111,6 @@ class Context:
     def light_grey(self):
         return self.pens.get('light_grey')
 
+if __name__ == "__main__":
+    Context().led_white()
+    time.sleep(20)

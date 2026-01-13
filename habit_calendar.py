@@ -2,7 +2,7 @@
 
 from date_matrix import DateMatrix
 import time
-from button_handler import Button
+from button_handler import Button, ButtonPress
 
 MONTHS = ['January','Febuary','March','April','May','June','July','August','September','October','November','December']
 
@@ -22,6 +22,7 @@ class HabitCalendar:
         self.view = [
             self.display_summary_view,
             self.display_year_view,
+            self.display_reset_view,
         ]
         self.view_idx = 0
 
@@ -32,23 +33,29 @@ class HabitCalendar:
         self.context.restore_brightness()
         self.update_display()
 
-    def display_summary_view(self):
-        self.display_date()
-        self.display_time()
-        self.display_percentage()
-        self.display_month()
-
     def update_display(self):
         self.context.clear_display(self.background())
         self.view[self.view_idx]()
         self.context.update_display()
 
     def button_pressed(self, button, press):
-        if button is Button.X:
-            self.toggle_day()
-        elif button is Button.Y:
+        view = self.view[self.view_idx]
+        if view in [self.display_summary_view, self.display_year_view]:
+            if button is Button.X:
+                self.toggle_day()
+
+        if view in [self.display_reset_view]:
+            if button is Button.X and press is ButtonPress.LONG:
+                self.reset_matrix()
+
+        if button is Button.Y:
             self.view_idx = (self.view_idx + 1) % len(self.view)
         self.update_display()
+
+    def reset_matrix(self):
+        self.date_matrix.reset()
+        print('Matrix reset')
+        self.view_idx = 0
 
     def restore_matrix(self):
         print(f'Restoring Matrix...')
@@ -117,6 +124,22 @@ class HabitCalendar:
                 pen = self.today_on() if today else self.on()
             self.context.set_pen(pen)
             self.update_matrix(day, 10)
+
+    def display_summary_view(self):
+        self.display_date()
+        self.display_time()
+        self.display_percentage()
+        self.display_month()
+
+    def display_reset_view(self):
+        scale=3
+        self.context.set_pen(self.context.orange())
+        text = 'Long press'
+        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 60, scale=scale, spacing=1)
+        text = 'x'
+        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 100, scale=scale, spacing=1)
+        text = 'to reset'
+        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 140, scale=scale, spacing=1)
 
     def refresh_display(self):
         _, _, _, _, _, current_minute, _, _ = self.context.datetime()
