@@ -133,7 +133,7 @@ class HabitCalendar:
 
     def display_reset_view(self):
         scale=3
-        self.context.set_pen(self.context.orange())
+        self.context.set_pen(self.context.white())
         text = 'Long press'
         self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 60, scale=scale, spacing=1)
         text = 'x'
@@ -147,10 +147,10 @@ class HabitCalendar:
             self.update_display()
 
     def on(self):
-        return self.context.blue()
+        return self.context.green()
         
     def off(self):
-        return self.context.black()
+        return self.context.dark_blue()
         
     def today_on(self):
         return self.context.green()
@@ -169,7 +169,7 @@ class HabitCalendar:
         month, day = self.current_date()
         date = f'{MONTHS[month-1]} {day}'
 
-        self.context.set_pen(self.context.orange())
+        self.context.set_pen(self.context.white())
         self.context.graphics.text(date, self.context.centre_text(date, scale=scale), 2, scale=scale, spacing=1)
 
     def display_time(self):
