@@ -70,6 +70,21 @@ class Context:
         self.set_pen(self.black() if background is None else background)
         self.graphics.clear()
 
+    def set_title(self, title):
+        self.graphics.set_font('bitmap16')
+        self.set_pen(self.white())
+        self.graphics.text(title, 10, 10, scale=4, spacing=1)
+        self.graphics.set_font('bitmap8')
+
+    def set_controls(self, controls):
+        self.graphics.set_pen(self.white())
+        scale = 2
+        character_height = scale * 8
+        y = 200 - (len(controls) * character_height)
+        for k, v in controls.items():
+            self.graphics.text(f'{k} - {v}', 10, y, scale=scale, spacing=1)
+            y += character_height
+
     def centre_text(self, text, scale=4):
         screen_width, _ = self.graphics.get_bounds()
         text_width = self.graphics.measure_text(text, scale)

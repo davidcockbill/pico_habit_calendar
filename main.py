@@ -6,7 +6,7 @@ from wifi import Wifi
 from habit_calendar import HabitCalendar
 from brightness import Brightness
 from button_handler import ButtonHandler, ButtonPress, Button
-
+from wifi_setup import WifiSetup
 
 class Controller:
     def __init__(self):
@@ -15,6 +15,7 @@ class Controller:
         self.page = [
             HabitCalendar(self.context),
             Brightness(self.context),
+            WifiSetup(self.context),
         ]
         self.button_handler = ButtonHandler()
 

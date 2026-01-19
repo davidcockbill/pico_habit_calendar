@@ -120,7 +120,7 @@ class HabitCalendar:
             today = day == current_day-1
             pen = self.today_off() if today else self.off()
             if (self.date_matrix.isSet(month, day)):
-                print(f'day={day} is set')
+                # print(f'day={day} is set')
                 pen = self.today_on() if today else self.on()
             self.context.set_pen(pen)
             self.update_matrix(day, 10)

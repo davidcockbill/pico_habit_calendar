@@ -14,13 +14,20 @@ class Brightness:
 
     def refresh_display(self):
         self.context.clear_display()
-        self.context.graphics.set_font('bitmap16')
-        self.context.set_pen(self.context.blue())
-        self.context.graphics.text('Brightness:', 2, 4, scale=5, spacing=1)
 
-        self.context.graphics.set_font('bitmap8')
+        self.context.set_title('Brightness')
+
+        display = self.context.graphics
         self.context.set_pen(self.context.green())
-        self.context.graphics.text(f'{self.context.get_brightness()}%', 100, 150, scale=5, spacing=1)
+        text = f'{self.context.get_brightness()}%'
+        scale = 5
+        display.text(text, self.context.centre_text(text, scale=scale), 90, scale=scale, spacing=1)
+
+        self.context.set_controls({
+            'x': 'up',
+            'y': 'down',
+        })
+
         self.context.update_display()
 
     def button_pressed(self, button, press):

@@ -9,6 +9,7 @@ from wifi_config import WIFI_SSID, WIFI_PASSWORD
 class Wifi:
     def __init__(self, context):
         self.context = context
+        self.status = 'connecting'
 
     def sync_time(self):
         last_timestamp = time.ticks_ms()
@@ -26,25 +27,41 @@ class Wifi:
                     break
                 print(f'[{retry}] Waiting for wifi connection...')
 
-            brightness = [50, 40, 30, 20, 10, 20, 30, 40][retry%8]
+            brightness_range = [70, 60, 50, 40, 30, 40, 50, 60]
+            brightness = brightness_range[retry%8]
             self._display_wifi(brightness=brightness)
             time.sleep(0.1)
             retry += 1
-        print('Connected')
 
+        self.status = 'connected'
+        print(self.status)
+        self._display_wifi(max(brightness_range))
+
+        self.status = 'setting time'    
+        self._display_wifi(max(brightness_range))    
         while True:
-            print(f'Setting time...')
+            print(self.status)
             try:
                 ntptime.settime()
-                print(f'Time set')
+                self.status = 'Time set'
+                print(self.status)
                 break
-            except OSError:
-                pass
+            except OSError as e:
+                print(f'e={e}')
             time.sleep(0.05)
 
         wlan.disconnect()
         wlan.active(False)
 
+    def display_status(self):
+        self.context.set_pen(self.context.white())
+        scale=2
+        self.context.graphics.text(
+            self.status,
+            self.context.centre_text(self.status, scale=scale),
+            200,
+            scale=scale,
+            spacing=1)
 
     def _display_wifi(self, brightness=50):
         foreground=self.context.blue()
@@ -80,5 +97,7 @@ class Wifi:
         # Centre circle
         self.context.graphics.set_pen(foreground)
         self.context.graphics.circle(centre_x, centre_y, band_width)
+
+        self.display_status()
 
         self.context.update_display()
