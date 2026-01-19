@@ -83,6 +83,6 @@ class WifiSetup:
 
     def save_wifi_config(self, ssid, pwd):
         print(f'Saving ssid={ssid}, pwd={pwd}')
-        # with open('wifi_config.py', 'w') as f:
-        #     f.write(f'WIFI_SSID = "{ssid}"\n')
-        #     f.write(f'WIFI_PASSWORD = "{pwd}"\n')
+        with open('wifi_config.py', 'w') as f:
+            f.write(f'WIFI_SSID = "{ssid}"\n')
+            f.write(f'WIFI_PASSWORD = "{pwd}"\n')

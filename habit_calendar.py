@@ -132,14 +132,11 @@ class HabitCalendar:
         self.display_month()
 
     def display_reset_view(self):
-        scale=3
-        self.context.set_pen(self.context.white())
-        text = 'Long press'
-        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 60, scale=scale, spacing=1)
-        text = 'x'
-        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 100, scale=scale, spacing=1)
-        text = 'to reset'
-        self.context.graphics.text(text, self.context.centre_text(text, scale=scale), 140, scale=scale, spacing=1)
+        self.context.clear_display()
+        self.context.set_title('Reset all')
+        self.context.set_controls({
+            'long press x': 'reset',
+        })
 
     def refresh_display(self):
         _, _, _, _, _, current_minute, _, _ = self.context.datetime()
