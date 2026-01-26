@@ -20,9 +20,8 @@ class SugarView:
         }
 
     def enter(self):
-        self.context.graphics.set_font('vector10')
         print(f'Sugar View Entry')
-        (value, trend, colour) = self.libre_link.get_reading()
+        (value, trend, colour) = self.get_reading()
         self.display(value, trend, colour)
         
     def refresh_display(self):
@@ -30,7 +29,7 @@ class SugarView:
         if time.ticks_diff(now, self.last_refresh) >= self.refresh_interval_ms:
             self.last_refresh = now
 
-            (value, trend, colour) = self.libre_link.get_reading()
+            (value, trend, colour) = self.get_reading()
             self.display(value, trend, colour)
 
     def display(self, value, trend, colour):
@@ -51,12 +50,16 @@ class SugarView:
 
             self.context.update_display()
 
+    def get_reading(self):
+        return self.libre_link.get_reading()
+
+
     def button_pressed(self, button, press):
         pass
 
 
 if __name__ == '__main__':
     context = Context()
-    Wifi(context).connect()
+    # Wifi(context).connect()
     view = SugarView(context)
     view.enter()
