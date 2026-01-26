@@ -11,7 +11,7 @@ class Wifi:
         self.context = context
         self.status = 'connecting'
 
-    def sync_time(self):
+    def connect(self):
         last_timestamp = time.ticks_ms()
         wlan = network.WLAN(network.STA_IF)
         wlan.active(True)
@@ -37,8 +37,8 @@ class Wifi:
         print(self.status)
         self._display_wifi(max(brightness_range))
 
+    def sync_time(self):
         self.status = 'setting time'    
-        self._display_wifi(max(brightness_range))    
         while True:
             print(self.status)
             try:
@@ -49,9 +49,6 @@ class Wifi:
             except OSError as e:
                 print(f'e={e}')
             time.sleep(0.05)
-
-        wlan.disconnect()
-        wlan.active(False)
 
     def display_status(self):
         self.context.set_pen(self.context.white())

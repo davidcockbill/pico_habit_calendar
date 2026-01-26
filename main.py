@@ -3,6 +3,7 @@
 import time
 from context import Context
 from wifi import Wifi
+from sugar_view import SugarView
 from habit_calendar import HabitCalendar
 from brightness import Brightness
 from button_handler import ButtonHandler, ButtonPress, Button
@@ -13,6 +14,7 @@ class Controller:
         self.context = Context()
         self.page_idx = 0
         self.page = [
+            SugarView(self.context),
             HabitCalendar(self.context),
             Brightness(self.context),
             WifiSetup(self.context),
@@ -21,7 +23,9 @@ class Controller:
 
         
     def run(self):
-        Wifi(self.context).sync_time()
+        wifi = Wifi(self.context)
+        wifi.connect()
+        wifi.sync_time()
         self.context.set_brightness(70)
         self._current_page().enter()
         while True:

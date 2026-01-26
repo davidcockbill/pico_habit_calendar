@@ -23,6 +23,9 @@ class Context:
             'pink': self.graphics.create_pen(255, 20, 147),
             'orange': self.graphics.create_pen(255, 102, 0),
             'light_grey': self.graphics.create_pen(20, 20, 20),
+            'red': self.graphics.create_pen(200, 0, 0),
+            'amber': self.graphics.create_pen(190, 150, 50),
+
         }
 
         self.graphics.set_font('bitmap8')
@@ -125,6 +128,12 @@ class Context:
     
     def light_grey(self):
         return self.pens.get('light_grey')
+    
+    def red(self):
+        return self.pens.get('red')
+    
+    def amber(self):
+        return self.pens.get('amber')
 
 if __name__ == "__main__":
     Context().led_white()
