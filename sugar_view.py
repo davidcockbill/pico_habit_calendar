@@ -43,7 +43,7 @@ class SugarView:
             context.set_title('Sugar View')
 
             context.set_pen(self.sugar_colour.get(colour))
-            text = f'{value}'
+            text = f'{value:.1f}'
             scale=15
             graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
             draw_arrow(graphics, trend, foreground, background, 250, 15)
