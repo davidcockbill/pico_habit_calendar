@@ -116,11 +116,10 @@ class HabitCalendar:
         current_month, current_day = self.current_date()
 
         month = current_month-1
-        for day in DateMatrix.day_range(current_month):
+        for day in DateMatrix.day_range(month):
             today = day == current_day-1
             pen = self.today_off() if today else self.off()
             if (self.date_matrix.isSet(month, day)):
-                # print(f'day={day} is set')
                 pen = self.today_on() if today else self.on()
             self.context.set_pen(pen)
             self.update_matrix(day, 10)
