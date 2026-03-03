@@ -9,21 +9,30 @@ from wifi_config import WIFI_SSID, WIFI_PASSWORD
 class Wifi:
     def __init__(self, context):
         self.context = context
-        self.status = 'connecting'
+        self.status = 'initialised'
+        self.wlan = network.WLAN(network.STA_IF)
+
+    def is_connected(self):
+        return  self.wlan.status() < 0 or self.wlan.status() >= 3
+    
+    def is_time_set(self):
+        return self.status is 'time set'
 
     def connect(self):
+        self.status = 'connecting'
         last_timestamp = time.ticks_ms()
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+        
+        self.wlan.active(True)
 
         connection_check_duration = 500
         retry = 0
-        while True:
+        while retry < 50:
+            self.wlan.connect(WIFI_SSID, WIFI_PASSWORD)
             timestamp = time.ticks_ms()
             if timestamp - last_timestamp > connection_check_duration:
                 last_timestamp = timestamp
-                if wlan.status() < 0 or wlan.status() >= 3:
+                if self.is_connected():
+                    self.status = 'connected'
                     break
                 print(f'[{retry}] Waiting for wifi connection...')
 
@@ -33,22 +42,22 @@ class Wifi:
             time.sleep(0.1)
             retry += 1
 
-        self.status = 'connected'
-        print(self.status)
+        print(f'retry={retry}, status={self.status}')
         self._display_wifi(max(brightness_range))
 
     def sync_time(self):
-        self.status = 'setting time'    
-        while True:
+        self.status = 'setting time'
+        retry = 0  
+        while retry < 10 and self.is_connected():
             print(self.status)
             try:
                 ntptime.settime()
-                self.status = 'Time set'
+                self.status = 'time set'
                 print(self.status)
                 break
             except OSError as e:
                 print(f'e={e}')
-            time.sleep(0.05)
+            time.sleep(0.1)
 
     def display_status(self):
         self.context.set_pen(self.context.white())

@@ -12,17 +12,17 @@ class SugarView:
         self.context = context
         self.libre_link = LibreLink(user=USER, pwd=PASSWORD)
         self.last_refresh = 0
-        self.refresh_interval_ms = 2 * 60 * 1000
+        self.refresh_interval_ms = 1 * 60 * 1000
         self.sugar_colour = {
             1: context.green(),
             2: context.amber(),
             3: context.red(),
+            4: context.red(),
         }
 
     def enter(self):
         print(f'Sugar View Entry')
-        (value, trend, colour) = self.get_reading()
-        self.display(value, trend, colour)
+        self.display('', 3, 1)
         
     def refresh_display(self):
         now = time.ticks_ms()
@@ -43,7 +43,12 @@ class SugarView:
             context.set_title('Sugar View')
 
             context.set_pen(self.sugar_colour.get(colour))
-            text = f'{value:.1f}'
+
+            try:
+                text = f"{float(value):.1f}"
+            except (TypeError, ValueError):
+                text = str(value)
+
             scale=15
             graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
             draw_arrow(graphics, trend, foreground, background, 250, 15)

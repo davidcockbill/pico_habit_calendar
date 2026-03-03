@@ -21,11 +21,14 @@ class Controller:
         ]
         self.button_handler = ButtonHandler()
 
-        
-    def run(self):
+    def connect_wifi(self):
         wifi = Wifi(self.context)
         wifi.connect()
-        wifi.sync_time()
+        if wifi.is_connected():
+             wifi.sync_time()
+        
+    def run(self):
+        self.connect_wifi()
         self.context.set_brightness(70)
         self._current_page().enter()
         while True:
