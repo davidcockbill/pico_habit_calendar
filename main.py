@@ -25,7 +25,9 @@ class Controller:
         wifi = Wifi(self.context)
         wifi.connect()
         if wifi.is_connected():
-             wifi.sync_time()
+            wifi.sync_time()
+        else:
+            print('Wifi down')
         
     def run(self):
         self.connect_wifi()

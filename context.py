@@ -50,8 +50,9 @@ class Context:
     def update_display(self):
         self.graphics.update()
 
-    def set_brightness(self, brightness):
-        print(f'Setting brightness to {brightness}')
+    def set_brightness(self, brightness, verbose=True):
+        if verbose:
+            print(f'Setting brightness to {brightness}')
         self.brightness = brightness
         self.graphics.set_backlight(self.brightness / 100)
 

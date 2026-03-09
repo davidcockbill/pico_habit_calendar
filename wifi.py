@@ -17,24 +17,36 @@ class Wifi:
     
     def is_time_set(self):
         return self.status is 'time set'
+    
+    def start_wifi(self):
+        if self.wlan.active():
+            self.wlan.active(False)
+            time.sleep(0.5)
+
+        self.wlan.active(True)
+        time.sleep(1)
 
     def connect(self):
         self.status = 'connecting'
         last_timestamp = time.ticks_ms()
-        
-        self.wlan.active(True)
+
+        self.start_wifi()
+
+        print(f"Connecting to ssid='{WIFI_SSID}', pwd='{WIFI_PASSWORD}'")
+        self.scan_wifi()
+        self.wlan.connect(WIFI_SSID, WIFI_PASSWORD)
 
         connection_check_duration = 500
         retry = 0
-        while retry < 50:
-            self.wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+        while retry < 20:
             timestamp = time.ticks_ms()
             if timestamp - last_timestamp > connection_check_duration:
                 last_timestamp = timestamp
                 if self.is_connected():
                     self.status = 'connected'
                     break
-                print(f'[{retry}] Waiting for wifi connection...')
+                status = self.wlan.status()
+                print(f'[{retry}] Waiting for wifi connection. status={status}')
 
             brightness_range = [70, 60, 50, 40, 30, 40, 50, 60]
             brightness = brightness_range[retry%8]
@@ -59,6 +71,20 @@ class Wifi:
                 print(f'e={e}')
             time.sleep(0.1)
 
+    def scan_wifi(self):
+        print('Scanning for available networks...')
+        networks = self.wlan.scan()
+        
+        print(f"{'SSID':<20} | {'Channel':<7} | {'RSSI':<5} | {'Security'}")
+        print("-" * 50)
+        
+        for net in networks:
+            ssid = net[0].decode('utf-8')
+            channel = net[2]
+            rssi = net[3]
+            sec = net[4]
+            print(f'{ssid:<20} | {channel:<7} | {rssi:<5} | {sec}')
+
     def display_status(self):
         self.context.set_pen(self.context.white())
         scale=2
@@ -72,7 +98,7 @@ class Wifi:
     def _display_wifi(self, brightness=50):
         foreground=self.context.blue()
         background=self.context.black()
-        self.context.set_brightness(brightness)
+        self.context.set_brightness(brightness, verbose=False)
         self.context.clear_display(background)
 
         band_width = 20
