@@ -28,9 +28,14 @@ class SugarView:
         now = time.ticks_ms()
         if time.ticks_diff(now, self.last_refresh) >= self.refresh_interval_ms:
             self.last_refresh = now
+            try:
+                value, trend, colour = self.get_reading()
+                self.display(value, trend, colour)
+            except Exception as e:
+                self.display_error(str(e))
 
-            (value, trend, colour) = self.get_reading()
-            self.display(value, trend, colour)
+    def display_error(self, msg):
+        self.display(msg, trend=6, colour=4)
 
     def display(self, value, trend, colour):
             print(f'Displaying: value={value}, trend={trend}, colour={colour}')
@@ -57,7 +62,6 @@ class SugarView:
 
     def get_reading(self):
         return self.libre_link.get_reading()
-
 
     def button_pressed(self, button, press):
         pass

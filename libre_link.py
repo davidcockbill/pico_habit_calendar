@@ -9,6 +9,10 @@ import time
 from libre_config import USER, PASSWORD
 
 
+class LibreLinkException(Exception):
+    pass
+
+
 class LibreLink:
     def __init__(self, user, pwd):
         self.username = user
@@ -30,8 +34,9 @@ class LibreLink:
                 headers=self.headers,
             )
             if response.status_code is not 200:
-                print(f'{response.status_code}: {response.text}')
-                return None
+                status_code = response.status_code
+                print(f'{status_code}: {response.text}')
+                raise LibreLinkException(f'Error: {status_code=}')
 
             json = response.json()
             value = json['data']['connection']['glucoseMeasurement']['Value']
