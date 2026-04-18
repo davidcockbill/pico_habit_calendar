@@ -22,7 +22,7 @@ class SugarView:
 
     def enter(self):
         print(f'Sugar View Entry')
-        self.display('', 3, 1)
+        self.display('', 6, 1)
         
     def refresh_display(self):
         now = time.ticks_ms()
@@ -32,23 +32,41 @@ class SugarView:
                 value, trend, colour = self.get_reading()
                 self.display(value, trend, colour)
             except Exception as e:
-                self.display_error(str(e))
+                msg = str(e)
+                print(f'{msg=}')
+                self.display_error(msg)
+
+    @staticmethod
+    def truncate(s, n=10):
+        return s if len(s) <= n else s[:n] + '...'
 
     def display_error(self, msg):
-        self.display(msg, trend=6, colour=4)
+        graphics = self.context.graphics
+        self.display_header(trend=6)
+
+        self.context.set_pen(self.context.red())
+        scale = 4
+        text = self.truncate(msg, 15)
+        graphics.text(text, self.context.centre_text(text, scale=scale), 100, scale=scale, spacing=1)
+        self.context.update_display()
+
+    def display_header(self, trend):
+        context = self.context
+        graphics = context.graphics
+        foreground = context.white()
+        background = context.dark_background_blue()
+
+        context.clear_display(background)
+        context.set_title('Sugar View')
+        draw_arrow(graphics, trend, foreground, background, 250, 15)
 
     def display(self, value, trend, colour):
             print(f'Displaying: value={value}, trend={trend}, colour={colour}')
             context = self.context
             graphics = context.graphics
-            foreground = context.white()
-            background = context.dark_background_blue()
-
-            context.clear_display(background)
-            context.set_title('Sugar View')
+            self.display_header(trend)
 
             context.set_pen(self.sugar_colour.get(colour))
-
             try:
                 text = f"{float(value):.1f}"
             except (TypeError, ValueError):
@@ -56,9 +74,9 @@ class SugarView:
 
             scale=15
             graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
-            draw_arrow(graphics, trend, foreground, background, 250, 15)
 
             self.context.update_display()
+
 
     def get_reading(self):
         return self.libre_link.get_reading()
@@ -71,4 +89,4 @@ if __name__ == '__main__':
     context = Context()
     # Wifi(context).connect()
     view = SugarView(context)
-    view.enter()
+    view.display_error('Status: 404')

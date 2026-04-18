@@ -26,6 +26,12 @@ class LibreLink:
             "user-agent": "Mozilla/5.0",
         }
         self.patient_id = None
+
+    def check_status_code(self, response):
+        if response.status_code is not 200:
+            status_code = response.status_code
+            print(f'{status_code}: {response.text}')
+            raise LibreLinkException(f'Status: {status_code}')
     
     def get_reading(self):
         if self.patient_id:
@@ -33,10 +39,7 @@ class LibreLink:
                 f'{self.url}/llu/connections/{self.patient_id}/graph',
                 headers=self.headers,
             )
-            if response.status_code is not 200:
-                status_code = response.status_code
-                print(f'{status_code}: {response.text}')
-                raise LibreLinkException(f'Error: {status_code=}')
+            self.check_status_code(response)
 
             json = response.json()
             value = json['data']['connection']['glucoseMeasurement']['Value']
@@ -53,6 +56,7 @@ class LibreLink:
             headers=self.headers,
             json={'email': self.username, 'password': self.password},
         )
+        self.check_status_code(response)
         response_json = response.json()
 
         auth_token = response_json['data']['authTicket']['token']
