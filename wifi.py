@@ -17,22 +17,19 @@ class Wifi:
     
     def is_time_set(self):
         return self.status is 'time set'
-    
-    def start_wifi(self):
+
+    def connect(self):
+        self.status = 'connecting'
+        last_timestamp = time.ticks_ms()
+        
         if self.wlan.active():
             self.wlan.active(False)
             time.sleep(0.5)
 
         self.wlan.active(True)
+        print(f"Connecting to ssid='{WIFI_SSID}', pwd='{WIFI_PASSWORD}'")
         time.sleep(1)
 
-    def connect(self):
-        self.status = 'connecting'
-        last_timestamp = time.ticks_ms()
-
-        self.start_wifi()
-
-        print(f"Connecting to ssid='{WIFI_SSID}', pwd='{WIFI_PASSWORD}'")
         self.scan_wifi()
         self.wlan.connect(WIFI_SSID, WIFI_PASSWORD)
 
