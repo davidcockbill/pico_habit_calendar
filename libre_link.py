@@ -42,10 +42,12 @@ class LibreLink:
             self.check_status_code(response)
 
             json = response.json()
-            value = json['data']['connection']['glucoseMeasurement']['Value']
-            trend = json['data']['connection']['glucoseMeasurement']['TrendArrow']
-            colour = json['data']['connection']['glucoseMeasurement']['MeasurementColor']
-            return (value, trend, colour)
+            measurement = json['data']['connection']['glucoseMeasurement']
+            value = measurement['Value']
+            trend = measurement['TrendArrow']
+            colour = measurement['MeasurementColor']
+            factory_timestamp = measurement.get('FactoryTimestamp', '')
+            return (value, trend, colour, factory_timestamp)
         else:
             return self.login()
         
@@ -70,10 +72,12 @@ class LibreLink:
         patient_details = self.get_patient_details()
         self.patient_id = patient_details['patientId']
 
-        value = patient_details['glucoseMeasurement']['Value']
-        trend = patient_details['glucoseMeasurement']['TrendArrow']
-        colour = patient_details['glucoseMeasurement']['MeasurementColor']
-        return (value, trend, colour)
+        measurement = patient_details['glucoseMeasurement']
+        value = measurement['Value']
+        trend = measurement['TrendArrow']
+        colour = measurement['MeasurementColor']
+        factory_timestamp = measurement.get('FactoryTimestamp', '')
+        return (value, trend, colour, factory_timestamp)
 
     def get_patient_details(self, patient_idx=0):
        response = urequests.get(f'{self.url}/llu/connections', headers=self.headers)

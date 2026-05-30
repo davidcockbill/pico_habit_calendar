@@ -22,9 +22,12 @@ class SugarView:
         self.current_bar_colour = context.white()
         self.last_progress_update = 0
         self.progress_update_ms = 500
+        self.last_factory_timestamp = ''
+        self.last_factory_timestamp_seen_at = 0
+        self.stale_timeout_ms = 10 * 60 * 1000
 
         self.bar_x = 10
-        self.bar_y = 222
+        self.bar_y = 225
         self.bar_w = 300
         self.bar_h = 2
 
@@ -64,11 +67,22 @@ class SugarView:
         if update:
             context.update_display()
 
+    def _is_stale(self, factory_timestamp):
+        now = time.ticks_ms()
+        if not factory_timestamp:
+            return False
+        if factory_timestamp == self.last_factory_timestamp:
+            return time.ticks_diff(now, self.last_factory_timestamp_seen_at) > self.stale_timeout_ms
+        self.last_factory_timestamp = factory_timestamp
+        self.last_factory_timestamp_seen_at = now
+        return False
+
     def update_display(self):
         self.last_refresh = time.ticks_ms()
         try:
-            value, trend, colour = self.get_reading()
-            self.display(value, trend, colour)
+            value, trend, colour, factory_timestamp = self.get_reading()
+            stale = self._is_stale(factory_timestamp)
+            self.display(value, trend, colour, stale)
         except Exception as e:
             msg = str(e)
             print(f'{msg=}')
@@ -101,8 +115,8 @@ class SugarView:
         context.set_title('Sugar View')
         draw_arrow(graphics, trend, foreground, background, 250, 15)
 
-    def display(self, value, trend, colour):
-            print(f'Displaying: value={value}, trend={trend}, colour={colour}')
+    def display(self, value, trend, colour, stale=False):
+            print(f'Displaying: value={value}, trend={trend}, colour={colour}, stale={stale}')
             context = self.context
             graphics = context.graphics
             self.display_header(trend)
@@ -115,6 +129,12 @@ class SugarView:
 
             scale=15
             graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
+
+            if stale:
+                context.set_pen(context.red())
+                label = 'stale'
+                label_scale = 2
+                graphics.text(label, self.context.centre_text(label, scale=label_scale), 202, scale=label_scale, spacing=1)
 
             self.current_bar_colour = self.sugar_colour.get(colour, context.white())
             self._draw_progress_bar(update=False)
