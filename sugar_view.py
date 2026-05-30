@@ -23,6 +23,7 @@ class SugarView:
     def enter(self):
         print(f'Sugar View Entry')
         self.display('', 6, 1)
+        self.update_display()
         
     def refresh_display(self):
         now = time.ticks_ms()
@@ -38,7 +39,6 @@ class SugarView:
             msg = str(e)
             print(f'{msg=}')
             self.display_error(msg)
-
 
     @staticmethod
     def truncate(s, n=10):

@@ -22,20 +22,26 @@ class Controller:
         self.button_handler = ButtonHandler()
 
     def connect_wifi(self):
+        connected = False
         wifi = Wifi(self.context)
         wifi.connect()
         if wifi.is_connected():
-            wifi.sync_time()
+            connected = True
+            wifi.sync_time()            
         else:
             print('Wifi down')
+        return connected
         
     def run(self):
-        self.connect_wifi()
-        self.context.set_brightness(70)
-        self._current_page().enter()
-        while True:
-            self._loop()
-            time.sleep(0.001)
+        if self.connect_wifi():
+            self.context.set_brightness(70)
+            self._current_page().enter()
+            while True:
+                self._loop()
+                time.sleep(0.001)
+        else:
+            self.context.clear_display(self.context.dark_background_blue())
+            self.context.set_title('WiFi Down')
 
     def _loop(self):
         button, press = self.button_handler.process_buttons()
