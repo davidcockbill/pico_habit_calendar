@@ -12,7 +12,7 @@ class SugarView:
         self.context = context
         self.libre_link = LibreLink(user=USER, pwd=PASSWORD)
         self.last_refresh = 0
-        self.refresh_interval_ms = 1 * 60 * 1000
+        self.refresh_interval_ms = 1 * 45 * 1000
         self.sugar_colour = {
             1: context.green(),
             2: context.amber(),
@@ -27,14 +27,18 @@ class SugarView:
     def refresh_display(self):
         now = time.ticks_ms()
         if time.ticks_diff(now, self.last_refresh) >= self.refresh_interval_ms:
-            self.last_refresh = now
-            try:
-                value, trend, colour = self.get_reading()
-                self.display(value, trend, colour)
-            except Exception as e:
-                msg = str(e)
-                print(f'{msg=}')
-                self.display_error(msg)
+            self.update_display()
+ 
+    def update_display(self):
+        self.last_refresh = time.ticks_ms()
+        try:
+            value, trend, colour = self.get_reading()
+            self.display(value, trend, colour)
+        except Exception as e:
+            msg = str(e)
+            print(f'{msg=}')
+            self.display_error(msg)
+
 
     @staticmethod
     def truncate(s, n=10):
