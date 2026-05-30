@@ -22,13 +22,13 @@ class LibreLink:
             'product': 'llu.android',
             'version': '4.16.0',
             'cache-control': 'no-cache',
-            'content-type': 'application/json',
-            "user-agent": "Mozilla/5.0",
+            'user-agent': 'Mozilla/5.0',
+            'accept': 'application/json',
         }
         self.patient_id = None
 
     def check_status_code(self, response):
-        if response.status_code is not 200:
+        if response.status_code != 200:
             status_code = response.status_code
             print(f'{status_code}: {response.text}')
             raise LibreLinkException(f'Status: {status_code}')
