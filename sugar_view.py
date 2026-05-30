@@ -11,7 +11,7 @@ class SugarView:
     def __init__(self, context):
         self.context = context
         self.libre_link = LibreLink(user=USER, pwd=PASSWORD)
-        self.last_refresh = 0
+        self.last_refresh = time.ticks_ms()
         self.refresh_interval_ms = 1 * 45 * 1000
         self.sugar_colour = {
             1: context.green(),
@@ -19,17 +19,51 @@ class SugarView:
             3: context.red(),
             4: context.red(),
         }
+        self.current_bar_colour = context.white()
+        self.last_progress_update = 0
+        self.progress_update_ms = 500
+
+        self.bar_x = 10
+        self.bar_y = 222
+        self.bar_w = 300
+        self.bar_h = 2
 
     def enter(self):
         print(f'Sugar View Entry')
+        self.last_progress_update = 0
         self.display('', 6, 1)
         self.update_display()
-        
+
     def refresh_display(self):
         now = time.ticks_ms()
         if time.ticks_diff(now, self.last_refresh) >= self.refresh_interval_ms:
             self.update_display()
- 
+        elif time.ticks_diff(now, self.last_progress_update) >= self.progress_update_ms:
+            self._draw_progress_bar()
+
+    def _progress(self):
+        elapsed = time.ticks_diff(time.ticks_ms(), self.last_refresh)
+        return min(elapsed / self.refresh_interval_ms, 1.0)
+
+    def _draw_progress_bar(self, update=True):
+        self.last_progress_update = time.ticks_ms()
+        progress = self._progress()
+
+        context = self.context
+        graphics = context.graphics
+
+        width = int(self.bar_w * progress)
+
+        context.set_pen(context.dark_background_blue())
+        graphics.rectangle(self.bar_x, self.bar_y, self.bar_w, self.bar_h)
+
+        if width > 0:
+            context.set_pen(self.current_bar_colour)
+            graphics.rectangle(self.bar_x, self.bar_y, width, self.bar_h)
+
+        if update:
+            context.update_display()
+
     def update_display(self):
         self.last_refresh = time.ticks_ms()
         try:
@@ -52,6 +86,9 @@ class SugarView:
         scale = 4
         text = self.truncate(msg, 15)
         graphics.text(text, self.context.centre_text(text, scale=scale), 100, scale=scale, spacing=1)
+
+        self.current_bar_colour = self.context.red()
+        self._draw_progress_bar(update=False)
         self.context.update_display()
 
     def display_header(self, trend):
@@ -79,6 +116,8 @@ class SugarView:
             scale=15
             graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
 
+            self.current_bar_colour = self.sugar_colour.get(colour, context.white())
+            self._draw_progress_bar(update=False)
             self.context.update_display()
 
 
