@@ -11,14 +11,13 @@ class SugarView:
         self.context = context
         self.libre_link = LibreLink(user=USER, pwd=PASSWORD)
         self.last_refresh = time.ticks_ms()
-        self.refresh_interval_ms = 10 * 1000
+        self.refresh_interval_ms = 20 * 1000
         self.sugar_colour = {
             1: context.green(),
             2: context.amber(),
             3: context.red(),
             4: context.red(),
         }
-        self.current_bar_colour = context.white()
         self.last_progress_update = 0
         self.progress_update_ms = 500
         self.last_factory_timestamp = ''
@@ -26,7 +25,7 @@ class SugarView:
         self.stale_timeout_ms = 10 * 60 * 1000
 
         self.bar_x = 10
-        self.bar_y = 225
+        self.bar_y = 235
         self.bar_w = 300
         self.bar_h = 2
 
@@ -60,7 +59,7 @@ class SugarView:
         graphics.rectangle(self.bar_x, self.bar_y, self.bar_w, self.bar_h)
 
         if width > 0:
-            context.set_pen(self.current_bar_colour)
+            context.set_pen(context.green())
             graphics.rectangle(self.bar_x, self.bar_y, width, self.bar_h)
 
         if update:
@@ -106,7 +105,6 @@ class SugarView:
         text = self.truncate(msg, 15)
         graphics.text(text, self.context.centre_text(text, scale=scale), 100, scale=scale, spacing=1)
 
-        self.current_bar_colour = self.context.red()
         self._draw_progress_bar(update=False)
         self.context.update_display()
 
@@ -128,7 +126,7 @@ class SugarView:
 
             context.set_pen(self.sugar_colour.get(colour))
             try:
-                text = f"{float(value):.1f}"
+                text = f'{float(value):.1f}'
             except (TypeError, ValueError):
                 text = str(value)
 
@@ -141,7 +139,6 @@ class SugarView:
                 label_scale = 2
                 graphics.text(label, self.context.centre_text(label, scale=label_scale), 202, scale=label_scale, spacing=1)
 
-            self.current_bar_colour = self.sugar_colour.get(colour, context.white())
             self._draw_progress_bar(update=False)
             self.context.update_display()
 
