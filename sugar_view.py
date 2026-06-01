@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from libre_link import LibreLink
+from libre_link import LibreLink, StatusCodeError
 from arrows import draw_arrow
 import time
 from context import Context
@@ -11,7 +11,7 @@ class SugarView:
         self.context = context
         self.libre_link = LibreLink(user=USER, pwd=PASSWORD)
         self.last_refresh = time.ticks_ms()
-        self.refresh_interval_ms = 1 * 45 * 1000
+        self.refresh_interval_ms = 10 * 1000
         self.sugar_colour = {
             1: context.green(),
             2: context.amber(),
@@ -82,6 +82,12 @@ class SugarView:
             value, trend, colour, factory_timestamp = self.get_reading()
             stale = self._is_stale(factory_timestamp)
             self.display(value, trend, colour, stale)
+        except StatusCodeError as e:
+            print(f'{e.status_code}: {e}')
+            self.display_error(str(e))
+            if e.status_code == 429:
+                self.refresh_interval_ms += 5 * 1000
+                self.last_refresh = time.ticks_add(self.last_refresh, 30000 - self.refresh_interval_ms)
         except Exception as e:
             msg = str(e)
             print(f'{msg=}')

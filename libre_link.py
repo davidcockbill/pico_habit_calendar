@@ -12,6 +12,12 @@ class LibreLinkException(Exception):
     pass
 
 
+class StatusCodeError(LibreLinkException):
+    def __init__(self, status_code):
+        self.status_code = status_code
+        super().__init__(f'Status: {status_code}')
+
+
 class LibreLink:
     def __init__(self, user, pwd):
         self.username = user
@@ -30,7 +36,7 @@ class LibreLink:
         if response.status_code != 200:
             status_code = response.status_code
             print(f'{status_code}: {response.text}')
-            raise LibreLinkException(f'Status: {status_code}')
+            raise StatusCodeError(status_code)
     
     def get_reading(self):
         if self.patient_id:
