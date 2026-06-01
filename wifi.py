@@ -18,7 +18,7 @@ class Wifi:
         self.wlan = network.WLAN(network.STA_IF)
 
     def is_connected(self):
-        return  self.wlan.status() < 0 or self.wlan.status() >= 3
+        return self.wlan.isconnected()
     
     def is_time_set(self):
         return self.status is 'time set'

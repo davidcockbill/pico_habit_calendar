@@ -31,7 +31,7 @@ class WifiSetup:
         ssid = self.text_input('Enter SSID')
         pwd = self.text_input('Enter Password')
         self.save_wifi_config(ssid, pwd)
-        self.display_setup_page()
+        self.context.reboot()
 
     def button_pressed(self, button, press):
         if button is Button.B:

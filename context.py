@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import time
-from machine import RTC
+from machine import RTC, reset
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2
 from pimoroni import RGBLED
 
@@ -135,6 +135,17 @@ class Context:
     
     def amber(self):
         return self.pens.get('amber')
+
+    def reboot(self):
+        self.clear_display(self.dark_background_blue())
+        self.set_pen(self.white())
+        msg = 'Rebooting...'
+        scale = 3
+        self.graphics.text(msg, self.centre_text(msg, scale=scale), 100, scale=scale, spacing=1)
+        self.update_display()
+        time.sleep(1)
+        reset()
+
 
 if __name__ == "__main__":
     Context().led_white()
