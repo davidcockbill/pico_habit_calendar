@@ -3,7 +3,12 @@
 import time
 import network
 import ntptime
-from wifi_config import WIFI_SSID, WIFI_PASSWORD
+
+try:
+    from wifi_config import WIFI_SSID, WIFI_PASSWORD
+except ImportError:
+    WIFI_SSID = None
+    WIFI_PASSWORD = None
 
 
 class Wifi:
@@ -19,6 +24,10 @@ class Wifi:
         return self.status is 'time set'
 
     def connect(self):
+        if WIFI_SSID is None:
+            self.status = 'no config'
+            return
+
         self.status = 'connecting'
         last_timestamp = time.ticks_ms()
         

@@ -3,7 +3,6 @@ from libre_link import LibreLink
 from arrows import draw_arrow
 import time
 from context import Context
-from wifi import Wifi
 from libre_config import USER, PASSWORD
 
      
@@ -149,7 +148,8 @@ class SugarView:
 
 
 if __name__ == '__main__':
+    from wifi import Wifi
     context = Context()
-    # Wifi(context).connect()
+    Wifi(context).connect()
     view = SugarView(context)
     view.display_error('Status: 404')

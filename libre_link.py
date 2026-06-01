@@ -2,7 +2,6 @@
 
 import urequests
 from context import Context
-from wifi import Wifi
 import binascii
 import hashlib
 import time
@@ -88,6 +87,7 @@ class LibreLink:
 
 
 if __name__ == '__main__':
+    from wifi import Wifi
     Wifi(Context()).connect()
     client = LibreLink(USER, PASSWORD)
     print(f'{client.get_reading()}')

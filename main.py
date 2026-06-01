@@ -2,7 +2,6 @@
 
 import time
 from context import Context
-from wifi import Wifi
 from sugar_view import SugarView
 from habit_calendar import HabitCalendar
 from brightness import Brightness
@@ -19,9 +18,11 @@ class Controller:
             Brightness(self.context),
             WifiSetup(self.context),
         ]
+        self.wifi_setup_idx = next(i for i, p in enumerate(self.page) if isinstance(p, WifiSetup))
         self.button_handler = ButtonHandler()
 
     def connect_wifi(self):
+        from wifi import Wifi
         connected = False
         wifi = Wifi(self.context)
         wifi.connect()
@@ -33,15 +34,13 @@ class Controller:
         return connected
         
     def run(self):
-        if self.connect_wifi():
-            self.context.set_brightness(70)
-            self._current_page().enter()
-            while True:
-                self._loop()
-                time.sleep(0.001)
-        else:
-            self.context.clear_display(self.context.dark_background_blue())
-            self.context.set_title('WiFi Down')
+        if not self.connect_wifi():
+            self.page_idx = self.wifi_setup_idx
+        self.context.set_brightness(70)
+        self._current_page().enter()
+        while True:
+            self._loop()
+            time.sleep(0.001)
 
     def _loop(self):
         button, press = self.button_handler.process_buttons()
