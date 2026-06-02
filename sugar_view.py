@@ -29,6 +29,8 @@ class SugarView:
         self.bar_w = 300
         self.bar_h = 2
 
+        self.stale = False
+
     def enter(self):
         print(f'Sugar View Entry')
         self.last_progress_update = 0
@@ -41,12 +43,13 @@ class SugarView:
             self.update_display()
         elif time.ticks_diff(now, self.last_progress_update) >= self.progress_update_ms:
             self._draw_progress_bar()
+            self.context.update_display()
 
     def _progress(self):
         elapsed = time.ticks_diff(time.ticks_ms(), self.last_refresh)
         return min(elapsed / self.refresh_interval_ms, 1.0)
 
-    def _draw_progress_bar(self, update=True):
+    def _draw_progress_bar(self):
         self.last_progress_update = time.ticks_ms()
         progress = self._progress()
 
@@ -59,28 +62,27 @@ class SugarView:
         graphics.rectangle(self.bar_x, self.bar_y, self.bar_w, self.bar_h)
 
         if width > 0:
-            context.set_pen(context.green())
+            colour = context.red() if self.stale else context.green()
+            context.set_pen(colour)
             graphics.rectangle(self.bar_x, self.bar_y, width, self.bar_h)
-
-        if update:
-            context.update_display()
-
-    def _is_stale(self, factory_timestamp):
+            
+    def _update_stale(self, factory_timestamp):
         now = time.ticks_ms()
-        if not factory_timestamp:
-            return False
-        if factory_timestamp == self.last_factory_timestamp:
-            return time.ticks_diff(now, self.last_factory_timestamp_seen_at) > self.stale_timeout_ms
-        self.last_factory_timestamp = factory_timestamp
-        self.last_factory_timestamp_seen_at = now
-        return False
+        stale = False
+        if factory_timestamp:
+            if factory_timestamp == self.last_factory_timestamp:
+                stale = time.ticks_diff(now, self.last_factory_timestamp_seen_at) > self.stale_timeout_ms
+            else:
+                self.last_factory_timestamp = factory_timestamp
+                self.last_factory_timestamp_seen_at = now
+        self.stale = stale
 
     def update_display(self):
         self.last_refresh = time.ticks_ms()
         try:
             value, trend, colour, factory_timestamp = self.get_reading()
-            stale = self._is_stale(factory_timestamp)
-            self.display(value, trend, colour, stale)
+            self._update_stale(factory_timestamp)
+            self.display(value, trend, colour)
         except StatusCodeError as e:
             print(f'{e.status_code}: {e}')
             self.display_error(str(e))
@@ -105,7 +107,7 @@ class SugarView:
         text = self.truncate(msg, 15)
         graphics.text(text, self.context.centre_text(text, scale=scale), 100, scale=scale, spacing=1)
 
-        self._draw_progress_bar(update=False)
+        self._draw_progress_bar()
         self.context.update_display()
 
     def display_header(self, trend):
@@ -118,8 +120,8 @@ class SugarView:
         context.set_title('Sugar View')
         draw_arrow(graphics, trend, foreground, background, 250, 15)
 
-    def display(self, value, trend, colour, stale=False):
-            print(f'Displaying: value={value}, trend={trend}, colour={colour}, stale={stale}')
+    def display(self, value, trend, colour):
+            print(f'Displaying: value={value}, trend={trend}, colour={colour}, stale={self.stale}')
             context = self.context
             graphics = context.graphics
             self.display_header(trend)
@@ -133,13 +135,7 @@ class SugarView:
             scale=15
             graphics.text(text, self.context.centre_text(text, scale=scale), 80, scale=scale, spacing=1)
 
-            if stale:
-                context.set_pen(context.red())
-                label = 'stale'
-                label_scale = 2
-                graphics.text(label, self.context.centre_text(label, scale=label_scale), 202, scale=label_scale, spacing=1)
-
-            self._draw_progress_bar(update=False)
+            self._draw_progress_bar()
             self.context.update_display()
 
 
